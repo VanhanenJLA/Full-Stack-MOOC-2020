@@ -1,0 +1,33 @@
+@port = 3001
+@baseurl = http://localhost:3001/api
+
+###
+ @id = 5ed91275a981ba3ce8a7320a
+GET {{baseurl}}/blogs/{{id}}
+
+###
+DELETE {{baseurl}}/blogs/{{id}}
+
+###
+GET {{baseurl}}/blogs
+
+###
+POST {{baseurl}}/blogs
+Content-Type: application/json
+
+{
+ "title" : "Otsikko",
+ "author" : "Auttori",
+ "url" : "osoite"
+}
+
+###
+PUT {{baseurl}}/blogs/{{id}}
+Content-Type: application/json
+
+{
+ "title" : "Otsikko",
+ "author" : "Autto",
+ "url" : "osoite",
+ "likes" : 14
+}

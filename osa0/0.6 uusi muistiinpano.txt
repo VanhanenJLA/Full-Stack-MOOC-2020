@@ -1,0 +1,13 @@
+
+title 0.6 Uusi muistiinpano
+
+
+käyttäjä->selain: Luo muistiinpanon
+selain-> palvelin: HTTP Post https://fullstack-exampleapp.herokuapp.com/new_note_spa
+note left of palvelin: Payloadina note-objekti
+
+palvelin--> selain: 201 Created, application&json;
+note over selain: Uusi muistiinpano lisätään paikallisesti
+
+
+selain-->käyttäjä: Näyttää muistiinpanot
