@@ -1,0 +1,19 @@
+
+title 0.5 Single Page App
+
+
+käyttäjä->selain: Navigoi sivulle
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/spa
+palvelin--> selain: 200 OK, text/html;
+
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/main.css
+palvelin--> selain: 200 OK, text/css;
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/spa.js
+palvelin--> selain: 200 OK, application/javascript;
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/data.json
+palvelin--> selain: 200 OK, application/json;
+
+selain-->käyttäjä: Näyttää muistiinpanot

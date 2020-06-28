@@ -1,0 +1,21 @@
+
+title 0.4 uusi muistiinpano
+
+
+käyttäjä->selain: Luo muistiinpanon
+selain-> palvelin: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note
+palvelin--> selain: 302 FOUND
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/notes
+palvelin--> selain: 200 OK, text/html;
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/main.css
+palvelin--> selain: 200 OK, text/css;
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/main.js
+palvelin--> selain: 200 OK, application/javascript;
+
+selain-> palvelin: HTTP GET https://fullstack-exampleapp.herokuapp.com/data.json
+palvelin--> selain: 200 OK, application/json;
+
+selain-->käyttäjä: Näyttää muistiinpanot

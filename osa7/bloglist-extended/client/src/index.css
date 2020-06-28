@@ -1,0 +1,31 @@
+.notification {
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.notification-error {
+  color: red;
+}
+
+.notification-success {
+  color: green;
+}
+
+.blog {
+  padding-top: 10;
+  padding-left: 2;
+  border: solid;
+  border-width: 1;
+  margin-bottom: 5;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}

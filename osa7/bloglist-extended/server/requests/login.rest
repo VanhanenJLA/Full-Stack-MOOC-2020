@@ -1,0 +1,12 @@
+@topic = api/login/
+@base = http://localhost:3001/
+@url = http://localhost:3001/api/login/
+
+POST {{url}}
+Content-Type: application/json
+
+{
+  "username": "dummy",
+  "name": "tyhäm",
+  "password": "xxx"
+}
