@@ -3,6 +3,8 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 
+const dummyUser = { username: 'dummy', name: 'Tyhäm Tester', password: 'salasana' }
+
 const usersInDb = async () => {
   const users = await User.find({})
   return users.map(u => u.toJSON())
@@ -24,11 +26,9 @@ const createUser = async (user) => {
   return response.body
 }
 
-const dummyUser = { username: 'dummy', name: 'tyhäm', password: 'salasana' }
-
 module.exports = {
   usersInDb,
   login,
   createUser,
-  dummyUser
+  dummyUser,
 }

@@ -2,7 +2,8 @@ const app = require('../app')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const Blog = require('../models/blog')
-const { login, dummyUser } = require('./common')
+const { login, dummyUser, createUser } = require('./common')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -21,14 +22,24 @@ const initialBlogs = [
   { _id: "5a422bc61b54a676234d17fc", title: "Type wars", author: "Robert C. Martin", url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html", likes: 2, __v: 0 }
 ]
 
-const blogsInDb = async () => {
-  return (await Blog.find({})).map(b => b.toJSON())
+const getBlogsFromServer = async () => {
+  const response = await api
+    .get('/api/blogs')
+  return response.body
 }
 
+const initialize = async () => {
+  await User.deleteMany({})
+  await Blog.deleteMany({})
+  const user = await createUser(dummyUser)
+  await Blog.insertMany(initialBlogs.map(b => {
+    b.user = user.id
+    return b
+  }))
+}
 
 beforeAll(async () => {
-  await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogs)
+  await initialize()
 })
 
 describe('GET /blogs', () => {
@@ -41,15 +52,24 @@ describe('GET /blogs', () => {
   })
 
   test('all blogs are returned', async () => {
-    const response = await api.get('/api/blogs')
+    const response = await api
+      .get('/api/blogs')
     expect(response.body).toHaveLength(initialBlogs.length)
   })
 
   test('blog ids are formatted correctly', async () => {
-    const blogs = await blogsInDb()
-    expect(blogs[0].id).toBeDefined()
-    expect(blogs[0]._id).not.toBeDefined()
-    expect(blogs[0].__ver).not.toBeDefined()
+
+    const response = await api
+      .get('/api/blogs')
+
+    const { id, _id, __ver, user } = response.body[0]
+
+    expect(id).toBeDefined()
+    expect(_id).not.toBeDefined()
+    expect(__ver).not.toBeDefined()
+    expect(user).toBeDefined()
+    expect(user).not.toBeNull()
+
   })
 
 })
@@ -57,7 +77,7 @@ describe('GET /blogs', () => {
 describe('POST /blogs', () => {
   test('succeeds with code 201 when valid data', async () => {
 
-    const blogsAtStart = await blogsInDb()
+    const blogsAtStart = await getBlogsFromServer()
     const token = await login(dummyUser)
     await api
       .post('/api/blogs')
@@ -66,7 +86,7 @@ describe('POST /blogs', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAtEnd = await blogsInDb()
+    const blogsAtEnd = await getBlogsFromServer()
     expect(blogsAtEnd.length).toBe(blogsAtStart.length + 1)
 
     const urls = blogsAtEnd.map(b => b.url)
@@ -76,17 +96,16 @@ describe('POST /blogs', () => {
   })
 
   test('fails with status code 400 when data invalid', async () => {
-    const blogsAtStart = await blogsInDb()
-    const invalidBlog = {}
+    const blogsAtStart = await getBlogsFromServer()
     const token = await login(dummyUser)
     await api
       .post('/api/blogs')
-      .send({ ...invalidBlog, user: token.id })
+      .send({})
       .set('Authorization', 'bearer ' + token)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAtEnd = await blogsInDb()
+    const blogsAtEnd = await getBlogsFromServer()
     expect(blogsAtEnd.length).toBe(blogsAtStart.length)
   })
 
@@ -116,14 +135,17 @@ describe('POST /blogs', () => {
 describe('DELETE /blogs', () => {
   test('succeeds with status code 204 if id is valid', async () => {
 
-    const blogsAtStart = await blogsInDb()
+    const blogsAtStart = await getBlogsFromServer()
     const blogToDelete = blogsAtStart[0]
+
+    const token = await login(dummyUser)
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', 'bearer ' + token)
       .expect(204)
 
-    const blogsAtEnd = await blogsInDb()
+    const blogsAtEnd = await getBlogsFromServer()
     expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
 
     const urls = blogsAtEnd.map(blog => blog.url)
@@ -134,8 +156,9 @@ describe('DELETE /blogs', () => {
 
 describe('PUT /blogs', () => {
   test('succeeds with status code 200 and returns updated blog', async () => {
-    const firstBlogInDb = (await blogsInDb())[0]
-    const blog = { ...firstBlogInDb, likes: 10 }
+    const blog = (await getBlogsFromServer())[0]
+    blog.likes += 10
+
     const response = await api
       .put(`/api/blogs/${blog.id}`)
       .send(blog)
@@ -147,7 +170,6 @@ describe('PUT /blogs', () => {
 })
 
 afterAll(async () => {
-  await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogs)
+  await initialize()
   await mongoose.connection.close()
 })

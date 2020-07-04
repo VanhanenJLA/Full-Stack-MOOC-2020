@@ -23,4 +23,14 @@ router.post('/blogs/insertmany', async (request, response) => {
   response.status(204).end()
 })
 
+router.post('/blogs/deletemany', async (request, response) => {
+  await Blog.deleteMany({});
+  response.status(204).end()
+})
+
+router.get('/blogs/deletemany', async (request, response) => {
+  await Blog.deleteMany({});
+  response.status(204).end()
+})
+
 module.exports = router

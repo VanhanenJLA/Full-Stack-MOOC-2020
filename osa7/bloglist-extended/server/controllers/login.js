@@ -11,14 +11,14 @@ loginRouter.post('/', async (request, response) => {
   if (!user)
     throw {
       name: 'LoginError',
-      message: `No user for username: ${username} found.`
+      message: `No username: ${username} found.`
     }
 
   const passwordCorrect = await bcrypt.compare(password, user.passwordHash)
   if (!passwordCorrect)
     throw {
       name: 'LoginError',
-      message: 'Invalid password.'
+      message: 'Password incorrect.'
     }
 
   const userForToken = {
