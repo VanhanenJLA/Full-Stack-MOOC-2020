@@ -123,14 +123,25 @@ export const Login = () => {
         </div>
 
         <div className="form-group">
-          <input className="form-control custom-form-control" id="username-input" onChange={e => setCredentials({ ...credentials, username: e.target.value })} placeholder="Username" required autoFocus />
+          <input className="form-control"
+            id="username-input"
+            onChange={e => setCredentials({ ...credentials, username: e.target.value })}
+            placeholder="Username"
+            type="text"
+            required
+            autoFocus />
           <div className="invalid-feedback">
             Please enter a username.
       </div>
         </div>
 
         <div className="form-group">
-          <input className="form-control" id="password-input" onChange={e => setCredentials({ ...credentials, password: e.target.value })} type="password" placeholder="Password" required />
+          <input className="form-control"
+            id="password-input"
+            onChange={e => setCredentials({ ...credentials, password: e.target.value })}
+            type="password"
+            placeholder="Password"
+            required />
           <div className="invalid-feedback">
             Please enter a password.
       </div>
@@ -191,7 +202,7 @@ export const Header = () => {
   return (
     <div className="jumbotron jumbotron-fluid">
       <div className="container">
-        <h1 className="display-4">Welcome to blogs <b>{user.name}</b>!</h1>
+        <h1 className="display-4">Welcome <b>{user.name}</b>!</h1>
         <button className="btn btn-outline-info float-right" type="button" onClick={() => logout()}>Logout</button>
       </div>
     </div>
