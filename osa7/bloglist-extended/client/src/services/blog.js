@@ -31,7 +31,6 @@ export const like = async blog => {
 }
 
 export const comment = async (blog, comment) => {
-  debugger
   const commentedBlog = (await axios.post(`${baseUrl}/${blog.id}/comments`, { comment }, config())).data
   return commentedBlog
 }

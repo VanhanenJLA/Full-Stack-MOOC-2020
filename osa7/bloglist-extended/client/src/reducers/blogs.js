@@ -58,7 +58,6 @@ export const like = blog => {
 }
 
 export const comment = (blog, comment) => {
-  debugger
   return async dispatch => {
     const commentedBlog = await blogService.comment(blog, comment)
     dispatch({ type: 'COMMENT', data: commentedBlog })

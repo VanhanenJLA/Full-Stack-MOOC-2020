@@ -9,8 +9,8 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  NavLink as Link,
-  Redirect,
+  Link,
+  NavLink,
   useParams,
   useHistory,
 } from "react-router-dom"
@@ -92,12 +92,14 @@ export const Login = () => {
   const user = useSelector(state => state.user)
   const dispatch = useDispatch()
 
+  const [didTryLogin, setDidTryLogin] = useState(false)
   const [credentials, setCredentials] = useState({})
 
   if (user) return null;
 
   const login = async credentials => {
     try {
+      setDidTryLogin(true)
       const user = await authService.login(credentials)
       dispatch(userReducer.login(user))
       dispatch(show({ message: `${user.name} logged in.`, style: 'success' }))
@@ -112,25 +114,32 @@ export const Login = () => {
 
   return (
     <>
-      <form className="form-signin" id="login-form">
+      <form onSubmit={e => { e.preventDefault(); login(credentials) }} className={`form-signin needs-validation ${didTryLogin ? 'was-validated' : ''}`} id="login-form" noValidate>
+
+        <img className="img-fluid" src="./logo512.png"></img>
+
         <div className="form-group">
-          <h2>Login</h2>
+          <h2>React Blogs</h2>
         </div>
 
         <div className="form-group">
-          <label htmlFor="username-input">Username</label>
-          <input className="form-control" id="username-input" onChange={e => setCredentials({ ...credentials, username: e.target.value })} />
+          <input className="form-control custom-form-control" id="username-input" onChange={e => setCredentials({ ...credentials, username: e.target.value })} placeholder="Username" required autoFocus />
+          <div className="invalid-feedback">
+            Please enter a username.
+      </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="password-input">Password</label>
-          <input className="form-control" id="password-input" onChange={e => setCredentials({ ...credentials, password: e.target.value })} type="password" />
+          <input className="form-control" id="password-input" onChange={e => setCredentials({ ...credentials, password: e.target.value })} type="password" placeholder="Password" required />
+          <div className="invalid-feedback">
+            Please enter a password.
+      </div>
         </div>
 
         <div className="form-group">
-          <button className="btn btn-outline-primary btn-block btn-lg" id="login-button" onClick={() => login(credentials)} type="button">login</button>
+          <button className="btn btn-outline-primary btn-block btn-lg" id="login-button" type="submit">Login</button>
         </div>
-        <p className="text-muted small"> ...or login as <a onClick={bypass}>Dummy</a>.</p>
+        <p className="text-muted small"> ...or login as <span className="btn-link" onClick={bypass}>Dummy</span>.</p>
       </form>
 
     </>
@@ -142,7 +151,7 @@ export const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
 
       <a className="navbar-brand" href="/">
-        <img src="./../public/logo192.png" alt="" />
+        <img className="pr-2" width="32" src={require('./logo192.png')} alt="" />
         <span>React Blogs</span>
       </a>
 
@@ -154,11 +163,11 @@ export const Navbar = () => {
         <ul className="navbar-nav mr-auto">
 
           <li className="nav-item">
-            <Link activeClassName="active" className="nav-link" to="/">Blogs</Link>
+            <NavLink activeClassName="active" className="nav-link" to="/">Blogs</NavLink>
           </li>
 
           <li className="nav-item">
-            <Link activeClassName="active" className="nav-link" to="/users">Users</Link>
+            <NavLink activeClassName="active" className="nav-link" to="/users">Users</NavLink>
           </li>
 
         </ul>
@@ -213,8 +222,9 @@ export const User = () => {
 
 
         <div className="list-group list-group-flush">
+          {!user.blogs.length && <p className="list-group-item">User hasn't added any blogs yet!</p>}
           {user.blogs && user.blogs.map(blog =>
-            <Link key={blog.id} className="list-group-item" to={`/blogs/${blog.id}`} key={blog.id}>{blog.title}</Link>
+            <Link className="list-group-item" to={`/blogs/${blog.id}`} key={blog.id}>{blog.title}</Link>
           )}
         </div>
       </div>
@@ -236,32 +246,30 @@ export const Users = () => {
         <h2>Users</h2>
       </div>
 
-      <div className="card-body">
+      <table className="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Blogs created</th>
+          </tr>
+        </thead>
+        <tbody className="table-hover">
+          {
+            users.map(user =>
+              <tr key={user.id}>
+                <td>
+                  <Link to={`/users/${user.id}`} > {user.name}</Link>
+                </td>
+                <td>
+                  {user.blogs.length}
+                </td>
+              </tr>
+            )
+          }
+        </tbody>
+      </table>
 
-        <table className="table table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Blogs created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              users.map(user =>
-                <tr key={user.id}>
-                  <td>
-                    <Link to={`/users/${user.id}`} > {user.name}</Link>
-                  </td>
-                  <td>
-                    {user.blogs.length}
-                  </td>
-                </tr>
-              )
-            }
-          </tbody>
-        </table>
 
-      </div>
     </div>
 
   )
@@ -273,13 +281,18 @@ export const NewBlog = () => {
   const user = useSelector(state => state.user)
   const dispatch = useDispatch()
   const [isCreating, setIsCreating] = useState(false)
+  const [didTryCreate, setDidTryCreate] = useState(false)
+
   const [newBlog, setNewBlog] = useState({})
 
   const create = async blog => {
+    setDidTryCreate(true)
     const { title, author } = blog;
     try {
       await dispatch(blogsReducer.create(blog))
       dispatch(show({ message: `A new blog '${title}' by ${author} added.`, style: 'success' }))
+      setIsCreating(false)
+      setDidTryCreate(false)
     } catch (error) {
       dispatch(show({ message: `${error.response.data.message}`, style: 'error' }))
     }
@@ -288,19 +301,19 @@ export const NewBlog = () => {
   if (!user) return null
   if (!isCreating)
     return (
-      <button id="new-blog-button" className="btn btn-primary btn-block mb-3" type="button" onClick={() => setIsCreating(true)}>New blog</button>
+      <button id="new-blog-button" className="btn btn-outline-primary btn-block mb-3" type="button" onClick={() => setIsCreating(true)}>New blog</button>
     )
 
   return (
     <div className="card mb-3">
 
       <div className="card-header">
-        <h2>Add blog</h2>
+        <h2>New blog</h2>
       </div>
 
       <div className="card-body">
 
-        <form>
+        <form className={`needs-validation ${didTryCreate ? 'was-validated' : ''}`}>
           <div className="form-group">
             <label htmlFor="title-input">Title</label>
             <input className="form-control" id="title-input" onChange={e => setNewBlog({ ...newBlog, title: e.target.value })} required placeholder="GUI Architectures" />
@@ -320,8 +333,8 @@ export const NewBlog = () => {
       </div>
 
       <div className="card-footer">
-        <button className="btn-primary btn btn-block" id="add-blog-button" type="button" onClick={() => create(newBlog)}>Add</button>
-        <button className="btn-secondary btn btn-block" type="button" onClick={() => setIsCreating(false)}>Cancel</button>
+        <button className="btn-outline-primary btn btn-block" id="add-blog-button" type="button" onClick={() => create(newBlog)}>Add</button>
+        <button className="btn-outline-secondary btn btn-block" type="button" onClick={() => setIsCreating(false)}>Cancel</button>
       </div>
 
     </div>
@@ -339,11 +352,11 @@ export const Blogs = () => {
       <div className="card-header">
         <h2>Blogs</h2>
       </div>
-      <div className="card-body">
-        {blogs.sort((b, a) => a.likes - b.likes).map(blog =>
-          <li key={blog.id}>
+      <div className="list-group-flush">
+        {blogs.sort((b, span) => span.likes - b.likes).map(blog =>
+          <span className="list-group-item" key={blog.id}>
             <Link to={`/blogs/${blog.id}`}>{blog.title} </Link> - {blog.author}
-          </li>
+          </span>
         )}
       </div>
     </div>
@@ -360,6 +373,8 @@ export const Blog = () => {
 
   if (!blogs) return null
   const blog = blogs.find(blog => blog.id === id)
+  if (!blog) return null
+
   const { title, author, url, likes } = blog
 
   const like = blog => {
@@ -375,6 +390,7 @@ export const Blog = () => {
 
   const comment = comment => {
     dispatch(blogsReducer.comment(blog, comment))
+    commentInput.current.value = ''
   }
 
   return (
@@ -395,7 +411,7 @@ export const Blog = () => {
           </li>
           <li className="list-group-item">
             <small className="text-muted">Source</small>
-            <p><a href={url}>{url}</a></p>
+            <p><span href={url}>{url}</span></p>
           </li>
           <li className="list-group-item">
             <small className="text-muted">Likes</small>
@@ -416,16 +432,13 @@ export const Blog = () => {
         </div>
         <div className="card-body">
           {blog.comments && blog.comments.map(comment => <li>{comment}</li>)}
-          {!blog.comments &&
-            <>
-              <p>There are no comments to display yet.</p>
-              <p>Leave one below!</p>
-            </>
+          {!blog.comments.length &&
+            <p className="text-muted">This blog hasn't been commented yet.</p>
           }
         </div>
         <div className="card-footer">
           <form className="d-flex">
-            <input ref={commentInput} className="form-control mr-1" type="search" placeholder="Type a comment in here." />
+            <input ref={commentInput} className="form-control mr-1" type="search" placeholder="Leave a comment." />
             <button onClick={() => comment(commentInput.current.value)} className="btn btn-outline-secondary" type="button">Submit</button>
           </form>
         </div>
@@ -438,6 +451,7 @@ export const Blog = () => {
 const RemoveBlog = ({ blog }) => {
 
   const dispatch = useDispatch()
+  const history = useHistory()
 
   const remove = async blog => {
     const { title, author } = blog
@@ -446,8 +460,9 @@ const RemoveBlog = ({ blog }) => {
       return
 
     try {
-      await dispatch(blogsReducer.remove(blog))
       dispatch(show({ message: `Removed blog '${title}' by ${author}.`, style: 'success' }))
+      await dispatch(blogsReducer.remove(blog))
+      history.push('/')
     } catch (error) {
       dispatch(show({ message: `${error.response.data.message}`, style: 'error' }))
     }
