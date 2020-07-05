@@ -116,7 +116,7 @@ export const Login = () => {
     <>
       <form onSubmit={e => { e.preventDefault(); login(credentials) }} className={`form-signin needs-validation ${didTryLogin ? 'was-validated' : ''}`} id="login-form" noValidate>
 
-        <img className="img-fluid" src="./logo512.png"></img>
+        <img className="img-fluid" src="./logo512.png" alt=""></img>
 
         <div className="form-group">
           <h2>React Blogs</h2>
@@ -280,7 +280,6 @@ export const Users = () => {
         </tbody>
       </table>
 
-
     </div>
 
   )
@@ -381,7 +380,6 @@ export const Blog = () => {
   const user = useSelector(state => state.user)
   const dispatch = useDispatch()
   const commentInput = useRef(null)
-
   if (!blogs) return null
   const blog = blogs.find(blog => blog.id === id)
   if (!blog) return null
@@ -399,9 +397,13 @@ export const Blog = () => {
     return true
   }
 
-  const comment = comment => {
-    dispatch(blogsReducer.comment(blog, comment))
-    commentInput.current.value = ''
+  const comment = async comment => {
+    try {
+      await dispatch(blogsReducer.comment(blog, comment))
+      commentInput.current.value = ''
+    } catch (error) {
+      dispatch(show({ message: `${error.response.data.message}`, style: 'error' }))
+    }
   }
 
   return (
@@ -442,15 +444,15 @@ export const Blog = () => {
           <h4>Comments</h4>
         </div>
         <div className="card-body">
-          {blog.comments && blog.comments.map(comment => <li>{comment}</li>)}
+          {blog.comments && blog.comments.map((comment, i) => <li key={i}>{comment}</li>)}
           {!blog.comments.length &&
             <p className="text-muted">This blog hasn't been commented yet.</p>
           }
         </div>
         <div className="card-footer">
-          <form className="d-flex">
-            <input ref={commentInput} className="form-control mr-1" type="search" placeholder="Leave a comment." />
-            <button onClick={() => comment(commentInput.current.value)} className="btn btn-outline-secondary" type="button">Submit</button>
+          <form onSubmit={e => { e.preventDefault(); comment(commentInput.current.value) }} className="d-flex">
+            <input ref={commentInput} className="form-control mr-1" type="search" placeholder="Leave a comment." required />
+            <button className="btn btn-outline-secondary" type="submit">Submit</button>
           </form>
         </div>
       </div>

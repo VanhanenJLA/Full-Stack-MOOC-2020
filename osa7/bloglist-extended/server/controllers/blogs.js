@@ -80,13 +80,14 @@ router.put('/:id', async (request, response) => {
 
 router.post('/:id/comments', async (request, response) => {
   const comment = request.body.comment
-  const blog = await Blog
+  const commentedBlog = await Blog
     .findById(request.params.id)
+    .populate('user', { username: 1, name: 1 })
 
-  blog.comments = blog.comments.concat(comment)
-  await blog.save()
+  commentedBlog.comments = commentedBlog.comments.concat(comment)
+  await commentedBlog.save()
 
-  response.status(200).json(blog)
+  response.status(200).json(commentedBlog)
 })
 
 module.exports = router

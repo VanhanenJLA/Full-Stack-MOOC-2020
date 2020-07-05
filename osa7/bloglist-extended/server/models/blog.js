@@ -13,7 +13,7 @@ const blogSchema = mongoose.Schema({
     ref: 'User'
   },
   comments: [
-    { type: String }
+    { type: String, minlength: 1 }
   ]
 })
 
