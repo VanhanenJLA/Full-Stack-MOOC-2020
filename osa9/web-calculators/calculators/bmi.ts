@@ -12,12 +12,12 @@ enum Severity {
 type Centimeter = number;
 type Kilogram = number;
 
-export const calculate = (height: Centimeter, weight: Kilogram): Severity => {
+const calculate = (height: Centimeter, weight: Kilogram): Severity => {
 
   if (height <= 0)
-    throw new Error("Height can't be negative or zero.")
+    throw new Error("Height can't be negative or zero.");
   if (weight <= 0)
-    throw new Error("Weight can't be negative or zero.")
+    throw new Error("Weight can't be negative or zero.");
 
   height /= 100; // Conversion to meters.
   const bmi = weight / Math.pow(height, 2);
@@ -46,11 +46,13 @@ export const calculate = (height: Centimeter, weight: Kilogram): Severity => {
 
 };
 
-run(process.argv)
-function run(args: Array<string>) {
-  if (args.length < 4)
-    throw new Error("Minimum of two (2) arguments are needed.")
+// run(process.argv);
+// function run(args: Array<string>) {
+//   if (args.length < 4)
+//     throw new Error("Minimum of two (2) arguments are needed.");
 
-  const [, , height, weight] = args;
-  console.log(calculate(Number(height), Number(weight)));
-}
+//   const [, , height, weight] = args;
+//   console.log(calculate(Number(height), Number(weight)));
+// }
+
+export { calculate as calculateBmi };
