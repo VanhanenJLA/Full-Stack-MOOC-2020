@@ -1,9 +1,17 @@
 
+import express from 'express';
+const router = express.Router();
+
 import diagnoses from '../data/diagnoses.json';
 import { Diagnosis } from '../types';
 
-const getDiagnoses = (): Array<Diagnosis> => {
-  return diagnoses;
-};
+router.get('/', (_request, response) => {
 
-export default { getDiagnoses };
+  const data: Diagnosis[] = diagnoses;
+  response
+    .status(200)
+    .json(data);
+});
+
+
+export default router;

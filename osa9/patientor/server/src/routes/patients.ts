@@ -25,6 +25,27 @@ router.post('/', (request, response) => {
     .json(createdPatient);
 });
 
+router.get('/:id', async (request, response) => {
+  const id = request.params.id;
+  const patient = patientService.getPatient(id);
+  console.log(patient);
+  response.status(200).json(patient);
+});
+
+router.post('/:id/entries', (request, response) => {
+  const id = request.params.id;
+  const patient = patientService.getPatient(id);
+  if (!patient)
+    return response.status(400)
+      .send(`Patient ${id} not found.`);
+
+  const entry = patientService.createEntry(patient, request.body);
+  return response
+    .status(200)
+    .send(entry);
+
+});
+
 
 
 export default router;

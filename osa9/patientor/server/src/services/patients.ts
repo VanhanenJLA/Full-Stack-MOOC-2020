@@ -1,19 +1,28 @@
-import { Patient, PatientWithoutSsn } from './../types';
-import patients from '../data/patients.json';
+import { Patient, PublicPatient, Entry } from './../types';
+import patients from '../data/patients';
+import { generateUniqueId } from '../utils/uuid';
 
-const getPatients = (): Array<PatientWithoutSsn> => {
-  return patients.map(p => {
-    delete p.ssn;
-    return p as PatientWithoutSsn;
-  });
-};
+const getPatients = (): PublicPatient[] => patients.map(p => convert(p));
 
-const create = (patient: Patient): PatientWithoutSsn => {
-  const id = Math.floor((Math.random() * 1e10));
-  patient.id = id.toString()
+const getPatient = (id: string): Patient | undefined =>
+  patients.find(p => id === p.id);
+
+const create = (patient: Patient): PublicPatient => {
+  patient.id = generateUniqueId();
   patients.push(patient);
-  delete patient.ssn;
-  return patient;
+  return convert(patient);
 };
 
-export default { getPatients, create };
+const createEntry = (patient: Patient, entry: Entry): Entry => {
+  entry.id = generateUniqueId();
+  patient.entries.push(entry)
+  return entry;
+}
+
+const convert = (patient: Patient): PublicPatient => {
+  delete patient.ssn;
+  delete patient.entries;
+  return patient;
+}
+
+export default { getPatient, getPatients, create, createEntry };
