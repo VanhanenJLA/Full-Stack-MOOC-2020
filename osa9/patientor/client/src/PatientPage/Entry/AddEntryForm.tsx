@@ -171,14 +171,14 @@ export const AddEntryForm: React.FC<AddEntryForm> = ({ onSubmit, onCancel }) => 
                 <h3>Sick leave</h3>
                 <Field
                   label="Start date"
-                  placeholder="YYYY-MM-DD"
+                  placeholder="DD-MM-YYYY"
                   name="sickLeave.startDate"
                   component={TextField}
                   validate={validateDate}
                 />
                 <Field
                   label="End date"
-                  placeholder="YYYY-MM-DD"
+                  placeholder="DD-MM-YYYY"
                   name="sickLeave.endDate"
                   component={TextField}
                   validate={validateDate}
