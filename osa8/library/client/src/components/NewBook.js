@@ -1,26 +1,51 @@
 import React, { useState } from 'react'
+import { ALL_BOOKS } from './Books'
+import { ALL_AUTHORS } from './Authors'
+import { useMutation, gql } from '@apollo/client'
+
+export const CREATE_BOOK = gql`
+  mutation createBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
+    addBook(
+      title: $title
+      author: $author
+      published: $published
+      genres: $genres
+    ) {
+      title
+      author
+      published
+      genres
+    }
+  }
+`
 
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
-  const [author, setAuhtor] = useState('')
+  const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  if (!props.show) {
-    return null
-  }
+  const [createBook] = useMutation(CREATE_BOOK, {
+    refetchQueries: [
+      { query: ALL_BOOKS },
+      { query: ALL_AUTHORS }
+    ]
+  })
+
+  if (!props.show) return null
 
   const submit = async (event) => {
     event.preventDefault()
-    
-    console.log('add book...')
-
-    setTitle('')
-    setPublished('')
-    setAuhtor('')
-    setGenres([])
-    setGenre('')
+    await createBook({ variables: { title, author, published, genres } })
+    clear();
+    function clear() {
+      setTitle('')
+      setPublished('')
+      setAuthor('')
+      setGenres([])
+      setGenre('')
+    }
   }
 
   const addGenre = () => {
@@ -30,7 +55,9 @@ const NewBook = (props) => {
 
   return (
     <div>
+
       <form onSubmit={submit}>
+
         <div>
           title
           <input
@@ -38,21 +65,24 @@ const NewBook = (props) => {
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
+
         <div>
           author
           <input
             value={author}
-            onChange={({ target }) => setAuhtor(target.value)}
+            onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
+
         <div>
           published
           <input
             type='number'
             value={published}
-            onChange={({ target }) => setPublished(target.value)}
+            onChange={({ target }) => setPublished(parseInt(target.value))}
           />
         </div>
+
         <div>
           <input
             value={genre}
@@ -60,11 +90,15 @@ const NewBook = (props) => {
           />
           <button onClick={addGenre} type="button">add genre</button>
         </div>
+
         <div>
           genres: {genres.join(' ')}
         </div>
+
         <button type='submit'>create book</button>
+
       </form>
+
     </div>
   )
 }
