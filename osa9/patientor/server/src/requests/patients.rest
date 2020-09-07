@@ -1,0 +1,23 @@
+@patientsUrl = http://localhost:3001/api/patients
+
+GET {{patientsUrl}}
+
+### 200 - OK
+POST {{patientsUrl}}
+Content-Type: application/json
+
+{
+  "name": "Tyhäm Tester",
+  "dateOfBirth": "1971-04-09",
+  "ssn": "211234-1254",
+  "gender": "male",
+  "occupation": "Digital evangelist"
+}
+
+### 400 - INVALID
+POST {{patientsUrl}}
+Content-Type: application/json
+
+{
+  "name": "Tyhäm Tester"
+}
