@@ -23,3 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 osa2/maiden-tiedot/src/.env
 osa4/blogilista/server/.env
+.env

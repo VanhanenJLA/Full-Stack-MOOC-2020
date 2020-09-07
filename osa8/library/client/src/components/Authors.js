@@ -1,24 +1,17 @@
 
 import React, { useState } from 'react'
-import { gql, useQuery, useMutation } from '@apollo/client'
 import Select from 'react-select'
+import { useQuery, useMutation } from '@apollo/client'
+import { ALL_AUTHORS } from '../graphql/queries'
+import { EDIT_AUTHOR } from '../graphql/mutations'
 
-export const ALL_AUTHORS = gql`
-query {
-  allAuthors  {
-    name
-    id
-    born
-    bookCount
-  }
-}`
-
-const Authors = (props) => {
+const Authors = ({ show, token }) => {
 
   const result = useQuery(ALL_AUTHORS)
 
-  if (!props.show) return null
+  if (!show) return null
   if (result.loading) return <div>loading...</div>
+  if (result.error) return <div>{result.error.message}</div>
 
   const authors = result.data.allAuthors
 
@@ -41,12 +34,13 @@ const Authors = (props) => {
             </th>
           </tr>
 
-          {authors.map(a =>
-            <tr key={a.name}>
-              <td>{a.name}</td>
-              <td>{a.born}</td>
-              <td>{a.bookCount}</td>
-            </tr>
+          {authors.map(
+            ({ name, born, bookCount }) =>
+              <tr key={name}>
+                <td>{name}</td>
+                <td>{born}</td>
+                <td>{bookCount}</td>
+              </tr>
           )}
 
         </tbody>
@@ -62,21 +56,10 @@ const Authors = (props) => {
 
 const BirthYearForm = ({ authors }) => {
 
-  const SET_BIRTHYEAR = gql`
-  mutation setBirthYear($name: String!, $setBornTo: Int!) {
-    setBirthYear(
-      name: $name
-      setBornTo: $setBornTo
-    ) {
-      name
-      born
-    }
-  }`
-
   const [selectedAuthor, setSelectedAuthor] = useState('')
   const [birthYear, setBirthYear] = useState('')
   const [changeBirthYear] = useMutation(
-    SET_BIRTHYEAR, { refetchQueries: [{ query: ALL_AUTHORS }] }
+    EDIT_AUTHOR, { refetchQueries: [{ query: ALL_AUTHORS }] }
   )
 
   const submit = (event) => {

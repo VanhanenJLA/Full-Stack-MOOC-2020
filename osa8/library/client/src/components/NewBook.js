@@ -1,39 +1,23 @@
 import React, { useState } from 'react'
-import { ALL_BOOKS } from './Books'
-import { ALL_AUTHORS } from './Authors'
-import { useMutation, gql } from '@apollo/client'
+import { useMutation } from '@apollo/client'
+import { ALL_BOOKS, ALL_AUTHORS } from '../graphql/queries'
+import { ADD_BOOK } from '../graphql/mutations'
 
-export const CREATE_BOOK = gql`
-  mutation createBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
-    addBook(
-      title: $title
-      author: $author
-      published: $published
-      genres: $genres
-    ) {
-      title
-      author
-      published
-      genres
-    }
-  }
-`
-
-const NewBook = (props) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [published, setPublished] = useState('')
+const NewBook = ({ show }) => {
+  const [title, setTitle] = useState('Clean Code')
+  const [author, setAuthor] = useState('Robert Martin')
+  const [published, setPublished] = useState(2008)
   const [genre, setGenre] = useState('')
-  const [genres, setGenres] = useState([])
+  const [genres, setGenres] = useState(['Refactoring'])
 
-  const [createBook] = useMutation(CREATE_BOOK, {
+  const [createBook] = useMutation(ADD_BOOK, {
     refetchQueries: [
       { query: ALL_BOOKS },
       { query: ALL_AUTHORS }
     ]
   })
 
-  if (!props.show) return null
+  if (!show) return null
 
   const submit = async (event) => {
     event.preventDefault()

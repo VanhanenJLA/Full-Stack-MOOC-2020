@@ -62,5 +62,3 @@ const Total = ({ parts }) => {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
-
-// Vanhanen Jouni
